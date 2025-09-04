@@ -1,0 +1,8 @@
+
+model_dir: exp/conformer_ctc
+beam_size: 20
+use_lm: true
+lm_path: training/configs/lm/kenlm.arpa
+lm_weight: 0.9
+hotword_path: training/configs/hotwords/hotwords.txt
+hotword_weight: 1.0

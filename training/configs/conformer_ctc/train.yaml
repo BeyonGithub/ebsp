@@ -1,0 +1,14 @@
+
+data:
+  train_tsv: data/train_pairs.tsv
+  use_weights: true
+model:
+  type: conformer_ctc
+  encoder_layers: 16
+  d_model: 256
+optim:
+  lr: 0.0004
+  epochs: 12
+decode:
+  use_lm: true
+  lm_weight: 0.9

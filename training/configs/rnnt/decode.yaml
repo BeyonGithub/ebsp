@@ -1,0 +1,4 @@
+
+model_dir: exp/rnnt
+beam_size: 8
+use_lm: false
