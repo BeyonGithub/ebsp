@@ -1,0 +1,19 @@
+
+data:
+  train_tsv: data/train_pairs.tsv
+  use_weights: true
+model:
+  type: paraformer
+  encoder_layers: 12
+  d_model: 256
+  ctc_weight: 0.3
+  use_ctc_align_distill: true
+  distill_files: training/align/
+optim:
+  lr: 0.0003
+  epochs: 10
+  batch_seconds: 300
+decode:
+  use_lm: true
+  lm_weight: 0.8
+  hotword_weight: 1.2

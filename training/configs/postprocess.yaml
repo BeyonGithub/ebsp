@@ -1,0 +1,51 @@
+# training/configs/postprocess.yaml — up-to-date
+# 分片规则：主 CLI 会读取这里（并在 stub 兜底）；拼接逻辑也参考该配置
+segmentation:
+  seg_sec: 12.0        # 每段秒数
+  overlap_sec: 1.0     # 相邻段重叠秒数（用于边界稳健与去重）
+
+pre_vad:
+  enable: true
+  backend: energy
+decode:
+  beam_size: 1
+  decode_max_len: 192
+
+# 拼接 & 去重
+stitch:
+  # 最大重叠字符数，和 overlap_sec × char_rate 相关（CLI 会打印推导值），refine 直接使用该值
+  max_overlap_chars: 8
+  char_rate: 3.5       # 仅用于日志/推导，真实去重以 max_overlap_chars 为准
+
+dedup:
+  enable: true
+  head_tail_char_max: 12         # 主要用于边界对齐的首尾窗口
+  char_jaccard_threshold: 0.6    # 模糊匹配阈值（配合 difflib.SequenceMatcher）
+
+# 标点：FunASR ct-punc（支持懒加载，失败熔断回退）
+punctuation:
+  enable: true
+  backend: funasr_ct_punc
+  model_id: damo/punc_ct-transformer_zh-cn-common-vocab272727-pytorch
+  cache_dir: .cache/funasr        # 可改为绝对路径；也支持 FUNASR_CACHE / MODELSCOPE_CACHE / HF_HOME
+  device: auto                    # auto / cpu / cuda / cuda:0
+  max_len: 200                    # 长文本分块长度（字符）
+
+# 术语词表（可用于后续 normalizer/热词修正模块）
+lexicon:
+  - 祁东县
+  - 湖南省
+  - 应急管理厅
+  - 交通运输局
+  - 自然资源局
+
+# 数字归一化（占位：实际规则在 normalizer 钩子里实现）
+normalize_number:
+  enable: true
+  to_arabic: true
+
+# 未来可扩展：正则替换、地名/人名热词映射、禁用词等
+# normalizer:
+#   rules:
+#     - pattern: "三十余"
+#       replace: "30余"

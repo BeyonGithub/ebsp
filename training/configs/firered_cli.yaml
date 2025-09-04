@@ -1,0 +1,71 @@
+# training/configs/firered_cli.yaml — merged & up-to-date
+# 引擎选择：CLI > YAML > 默认 inproc
+# 可选: inproc（进程内，优先）| onnx（仅 AED 编码器）| cli（子进程调用官方脚本）
+engine: inproc
+
+# ONNX 编码器路径（仅 engine: onnx 时使用）
+onnx_encoder: models/onnx/firered_aed_encoder.onnx  # 可填绝对路径
+onnx_threads:
+  intra: 8
+  inter: 1
+providers:
+  - CPUExecutionProvider
+
+# FireRedASR 源码仓路径；若留空则走 repo_candidates 自动探测
+repo: "asr/FireRedASR"
+repo_candidates:
+  - "asr/FireRedASR"
+  - "asr\\FireRedASR"
+  - "FireRedASR"
+  - "E:/llm-train/ebsp/asr/FireRedASR"  # Windows 示例
+
+# 仅用于 CLI 显示与兜底（真正执行以 postprocess.yaml 为准；stub 有兜底 60/1）
+segmentation:
+  seg_sec: 30.0
+  overlap_sec: 1.0
+
+# Batching & bucketing
+batch: 4
+bucket_bounds: [10, 15, 20, 30, 45]
+
+# Decode options
+decode:
+  beam_size: 1
+  decode_max_len: 256
+  nbest: 1
+  softmax_smoothing: 1.0
+  eos_penalty: 1.0
+
+vad:
+  rms_thresh: 0.004
+
+# 便捷选项（当前 CLI 不强制读取；作为团队统一约定可选项保留）
+# device: cpu   # inproc 默认 cpu，可在命令行 --device 覆盖
+# batch: 6      # CLI 参数优先
+# beam_size: 1
+# decode_max_len: 256
+
+# LLM/AED 的 CLI 子进程模板（仅 engine: cli 时参考；inproc/onnx 不用）
+llm:
+  repo: "asr/FireRedASR"
+  model: "E:/docker/vllm/models/hub/pengzhendong/FireRedASR-LLM-L"
+  llm: "E:/docker/vllm/models/hub/Qwen/Qwen2-7B-Instruct"
+  cmd_template: >
+    python -X faulthandler -u -m fireredasr.speech2text
+      --wav_path "{wav}"
+      --asr_type llm
+      --model_dir "{model}"
+      --use_gpu 1
+aed:
+  repo: "asr/FireRedASR"
+  model: "E:/docker/vllm/models/hub/pengzhendong/FireRedASR-AED-L"
+  cmd_template: >
+    python -X faulthandler -u -m fireredasr.speech2text
+      --wav_path "{wav}"
+      --asr_type aed
+      --model_dir "{model}"
+      --use_gpu 1
+
+# Metrics 落盘（CLI 里：--no_metrics_save 可关闭；--metrics_out 可自定义路径）
+save_metrics: true
+metrics_out: ""   # 留空 => 若 --out 给定则默认写 {out}.metrics.json

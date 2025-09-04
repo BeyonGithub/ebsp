@@ -1,0 +1,9 @@
+
+model_dir: exp/paraformer
+beam_size: 10
+ctc_weight: 0.3
+use_lm: true
+lm_path: training/configs/lm/kenlm.arpa
+lm_weight: 0.8
+hotword_path: training/configs/hotwords/hotwords.txt
+hotword_weight: 1.2

@@ -1,0 +1,13 @@
+
+data:
+  train_tsv: data/train_pairs.tsv
+  use_weights: true
+model:
+  type: rnnt
+  encoder_layers: 12
+  d_model: 256
+optim:
+  lr: 0.0002
+  epochs: 15
+decode:
+  use_lm: false
